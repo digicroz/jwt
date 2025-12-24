@@ -1,4 +1,6 @@
 export type Prettify<T> = {
-    [K in keyof T]: T[K];
-    // eslint-disable-next-line @typescript-eslint/ban-types
-} & {};
+  [K in keyof T]: T[K]
+  // eslint-disable-next-line @typescript-eslint/ban-types
+} & {}
+
+export * from "./jwt.types.js"

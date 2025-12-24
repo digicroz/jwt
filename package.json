@@ -1,35 +1,29 @@
 {
-  "name": "@digicroz/js-kit",
-  "version": "1.0.4",
-  "description": "Modern TypeScript utility library with tree-shaking support - Array, String, Number, Sleep, and Time utilities for JavaScript and TypeScript projects",
+  "name": "@digicroz/jwt",
+  "version": "1.0.0",
+  "description": "Production-grade JWT utilities with complete type safety, timing-safe verification, and error handling without throwing. Fully typed, tested, and optimized for modern TypeScript projects.",
   "keywords": [
+    "jwt",
+    "json-web-token",
+    "authentication",
+    "authorization",
     "typescript",
-    "javascript",
-    "utilities",
-    "utility-library",
-    "tree-shaking",
-    "esm",
-    "array-utils",
-    "string-utils",
-    "number-utils",
-    "slug",
-    "slug-utils",
-    "url-slug",
-    "sleep",
-    "time-utils",
+    "type-safe",
+    "no-errors",
+    "result-pattern",
+    "timing-safe",
+    "security",
+    "async",
+    "promise",
+    "cryptography",
+    "token",
+    "verification",
+    "signing",
+    "decoding",
+    "hs256",
+    "jsonwebtoken",
     "modern-js",
-    "typescript-library",
-    "js-kit",
-    "functional",
-    "chunking",
-    "capitalize",
-    "clamp",
-    "async-sleep",
-    "promise-utils",
-    "browser",
-    "universal",
-    "environment-detection",
-    "cross-platform"
+    "typescript-library"
   ],
   "type": "module",
   "main": "./dist/index.js",
@@ -39,32 +33,11 @@
   "typings": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "string": [
-        "./dist/string/index.d.ts"
-      ],
-      "slug": [
-        "./dist/slug/index.d.ts"
-      ],
-      "array": [
-        "./dist/array/index.d.ts"
-      ],
-      "number": [
-        "./dist/number/index.d.ts"
-      ],
-      "sleep": [
-        "./dist/sleep/index.d.ts"
-      ],
-      "time": [
-        "./dist/time/index.d.ts"
-      ],
-      "utils": [
-        "./dist/utils/index.d.ts"
-      ],
       "types": [
         "./dist/types/index.d.ts"
       ],
-      "enum": [
-        "./dist/enum/index.d.ts"
+      "utils": [
+        "./dist/utils/index.d.ts"
       ]
     }
   },
@@ -72,74 +45,21 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/index.d.ts",
-      "react-native": "./dist/index.js",
-      "browser": "./dist/index.js",
       "require": "./dist/index.cjs",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./string": {
-      "types": "./dist/string/index.d.ts",
-      "react-native": "./dist/string/index.js",
-      "require": "./dist/string/index.cjs",
-      "import": "./dist/string/index.js",
-      "default": "./dist/string/index.js"
-    },
-    "./slug": {
-      "types": "./dist/slug/index.d.ts",
-      "react-native": "./dist/slug/index.js",
-      "require": "./dist/slug/index.cjs",
-      "import": "./dist/slug/index.js",
-      "default": "./dist/slug/index.js"
-    },
-    "./array": {
-      "types": "./dist/array/index.d.ts",
-      "react-native": "./dist/array/index.js",
-      "require": "./dist/array/index.cjs",
-      "import": "./dist/array/index.js",
-      "default": "./dist/array/index.js"
-    },
-    "./number": {
-      "types": "./dist/number/index.d.ts",
-      "react-native": "./dist/number/index.js",
-      "require": "./dist/number/index.cjs",
-      "import": "./dist/number/index.js",
-      "default": "./dist/number/index.js"
-    },
-    "./sleep": {
-      "types": "./dist/sleep/index.d.ts",
-      "react-native": "./dist/sleep/index.js",
-      "require": "./dist/sleep/index.cjs",
-      "import": "./dist/sleep/index.js",
-      "default": "./dist/sleep/index.js"
-    },
-    "./time": {
-      "types": "./dist/time/index.d.ts",
-      "react-native": "./dist/time/index.js",
-      "require": "./dist/time/index.cjs",
-      "import": "./dist/time/index.js",
-      "default": "./dist/time/index.js"
-    },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "react-native": "./dist/utils/index.js",
-      "require": "./dist/utils/index.cjs",
-      "import": "./dist/utils/index.js",
-      "default": "./dist/utils/index.js"
-    },
     "./types": {
       "types": "./dist/types/index.d.ts",
-      "react-native": "./dist/types/index.js",
       "require": "./dist/types/index.cjs",
       "import": "./dist/types/index.js",
       "default": "./dist/types/index.js"
     },
-    "./enum": {
-      "types": "./dist/enum/index.d.ts",
-      "react-native": "./dist/enum/index.js",
-      "require": "./dist/enum/index.cjs",
-      "import": "./dist/enum/index.js",
-      "default": "./dist/enum/index.js"
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "require": "./dist/utils/index.cjs",
+      "import": "./dist/utils/index.js",
+      "default": "./dist/utils/index.js"
     }
   },
   "files": [
@@ -182,6 +102,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "@types/jsonwebtoken": "^9.0.8",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
     "tsup": "^8.5.0",
@@ -189,6 +110,6 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
-    "ulidx": "^2.4.1"
+    "jsonwebtoken": "^9.0.2"
   }
 }

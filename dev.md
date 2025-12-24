@@ -1,1 +1,1 @@
-"@digicroz/js-kit": "file:C:/DigiCrozRepos/npm-packages/js-kit",
+"@digicroz/jwt": "file:C:/DigiCrozRepos/npm-packages/jwt",
