@@ -1,6 +1,6 @@
 {
   "name": "@digicroz/jwt",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Production-grade JWT utilities with complete type safety, timing-safe verification, and error handling without throwing. Fully typed, tested, and optimized for modern TypeScript projects.",
   "keywords": [
     "jwt",
