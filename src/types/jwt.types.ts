@@ -93,7 +93,12 @@ export interface JwtPayload {
 /**
  * JWT Verify Options - Extends jsonwebtoken VerifyOptions
  */
-export type JwtVerifyOptions = VerifyOptions
+export interface JwtVerifyOptions extends VerifyOptions {
+  /**
+   * Enable debug logging - will console.log errors for debugging
+   */
+  debug?: boolean
+}
 
 /**
  * JWT Sign Options - Extends jsonwebtoken SignOptions

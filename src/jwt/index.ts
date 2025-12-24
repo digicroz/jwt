@@ -1,4 +1,4 @@
-import * as jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import type { JwtPayload } from "../types/jwt.types.js"
 import {
   Result,
@@ -87,6 +87,15 @@ export async function jwtVerify<T extends JwtPayload = JwtPayload>(
     }
   } catch (error) {
     const jwtError = error as jwt.VerifyErrors | Error
+
+    // Debug logging if enabled
+    if (options?.debug) {
+      console.log("[JWT Debug]", {
+        errorName: (jwtError as any)?.name,
+        errorMessage: (jwtError as any)?.message,
+        fullError: jwtError,
+      })
+    }
 
     let errorType = JwtErrorType.VERIFICATION_FAILED
     let message = "Token verification failed"

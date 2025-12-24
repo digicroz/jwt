@@ -111,6 +111,18 @@ describe("JWT Package - Production Test Suite", () => {
       }
     })
 
+    it("should properly export and use jwt.verify function", async () => {
+      // This test catches issues like "jwt.verify is not a function" caused by incorrect imports
+      const result = await jwtVerify(validToken, secret)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        // If we reach here, jwt.verify was properly available and callable
+        expect(result.data).toBeDefined()
+        expect(typeof result.data).toBe("object")
+      }
+    })
+
     it("should verify with generic type parameter", async () => {
       interface CustomPayload extends Record<string, unknown> {
         userId: string
