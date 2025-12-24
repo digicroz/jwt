@@ -72,6 +72,8 @@ export async function jwtVerify<T extends JwtPayload = JwtPayload>(
         (err: Error | null, decoded: unknown) => {
           if (err) {
             reject(err)
+          } else if (typeof decoded !== "object" || decoded === null) {
+            reject(new jwt.JsonWebTokenError("Payload must be an object"))
           } else {
             resolve(decoded as T)
           }
@@ -231,6 +233,16 @@ export function jwtDecode<T extends JwtPayload = JwtPayload>(
         error: new JwtError(
           "Failed to decode token",
           JwtErrorType.MALFORMED_TOKEN
+        ),
+      }
+    }
+
+    if (typeof decoded !== "object") {
+      return {
+        success: false as const,
+        error: new JwtError(
+          "Payload must be an object",
+          JwtErrorType.INVALID_TOKEN
         ),
       }
     }
