@@ -41,12 +41,12 @@ try {
 // New way - Type-safe, no thrown errors
 const result = await jwtVerify<CustomPayload>(token, secret)
 
-if (result.success) {
-  // result.data is typed as CustomPayload!
-  console.log(result.data.userId)
+if (result.status === "success") {
+  // result.result is typed as CustomPayload!
+  console.log(result.result.userId)
 } else {
   // Handle specific error types
-  console.error(`${result.error.type}: ${result.error.message}`)
+  console.error(`${result.error.code}: ${result.error.message}`)
 }
 ```
 
@@ -72,10 +72,10 @@ interface AuthPayload {
 
 const result = await jwtVerify<AuthPayload>(token, secret)
 
-if (result.success) {
-  console.log(`User: ${result.data.userId}`)
+if (result.status === "success") {
+  console.log(`User: ${result.result.userId}`)
 } else {
-  console.error(`Verification failed: ${result.error.type}`)
+  console.error(`Verification failed: ${result.error.code}`)
 }
 ```
 
@@ -86,13 +86,14 @@ import { jwtSign } from "@digicroz/jwt"
 
 const payload = { userId: "123", role: "admin" }
 
-const result = jwtSign(payload, secret, {
+// Now async!
+const result = await jwtSign(payload, secret, {
   expiresIn: "1h",
   issuer: "my-app",
 })
 
-if (result.success) {
-  console.log(`Token: ${result.data}`)
+if (result.status === "success") {
+  console.log(`Token: ${result.result}`)
 } else {
   console.error(`Signing failed: ${result.error.message}`)
 }
@@ -106,8 +107,8 @@ import { jwtDecode } from "@digicroz/jwt"
 // Decode without verification - inspect token contents
 const result = jwtDecode<AuthPayload>(token)
 
-if (result.success) {
-  console.log(result.data) // Payload without verification
+if (result.status === "success") {
+  console.log(result.result) // Payload without verification
 } else {
   console.error("Invalid token structure")
 }
@@ -129,14 +130,14 @@ const result = await jwtVerify<PayloadType>(token, secret, {
 })
 ```
 
-**Returns**: `Promise<Result<T>>`
+**Returns**: `Promise<JwtResult<T>>`
 
 ### `jwtSign<T>(payload, secret, options?)`
 
-Sign and create a JWT token synchronously.
+Sign and create a JWT token asynchronously.
 
 ```typescript
-const result = jwtSign(payload, secret, {
+const result = await jwtSign(payload, secret, {
   expiresIn: "24h",
   issuer: "my-app",
   subject: "user-auth",
@@ -145,7 +146,7 @@ const result = jwtSign(payload, secret, {
 })
 ```
 
-**Returns**: `Result<string>`
+**Returns**: `Promise<JwtResult<string>>`
 
 ### `jwtDecode<T>(token, options?)`
 
@@ -157,7 +158,7 @@ const result = jwtDecode<PayloadType>(token, {
 })
 ```
 
-**Returns**: `Result<T>`
+**Returns**: `JwtResult<T>`
 
 ## 🛡️ Error Handling
 
@@ -184,29 +185,29 @@ enum JwtErrorType {
 ```typescript
 // ✅ BEST DX: Direct equality check
 const result = await jwtVerify(token, secret)
-if (result.success === false) {
+if (result.status === "error") {
   // TypeScript knows result.error exists here
   console.error(`Error: ${result.error.message}`)
 }
 
-// ✅ ALSO GOOD: Check success === true
-if (result.success === true) {
-  // TypeScript knows result.data exists here
-  console.log(result.data)
+// ✅ ALSO GOOD: Check status === "success"
+if (result.status === "success") {
+  // TypeScript knows result.result exists here
+  console.log(result.result)
 }
 
 // ✅ ALTERNATIVE: Using type guards
 import { isSuccess, isError } from "@digicroz/jwt"
 
 if (isError(result)) {
-  console.error(result.error.type)
+  console.error(result.error.code)
 } else if (isSuccess(result)) {
-  console.log(result.data)
+  console.log(result.result)
 }
 
 // ✅ FOR COMPLEX LOGIC: Specific error handling
-if (result.success === false) {
-  switch (result.error.type) {
+if (result.status === "error") {
+  switch (result.error.code) {
     case JwtErrorType.EXPIRED_TOKEN:
       // Handle expired token
       break
@@ -217,12 +218,6 @@ if (result.success === false) {
     // Handle other errors
   }
 }
-
-// ❌ DON'T USE: Negation pattern (!result.success)
-// TypeScript can't narrow the type properly with negation
-// if (!result.success) {
-//   console.error(result.error) // TS Error!
-// }
 ```
 
 ## 🔐 Security Features
@@ -265,14 +260,14 @@ export async function authMiddleware(req, res, next) {
 
   const result = await jwtVerify(token, process.env.JWT_SECRET)
 
-  if (!result.success) {
-    if (result.error.type === JwtErrorType.EXPIRED_TOKEN) {
+  if (result.status === "error") {
+    if (result.error.code === JwtErrorType.EXPIRED_TOKEN) {
       return res.status(401).json({ error: "Token expired" })
     }
     return res.status(401).json({ error: "Invalid token" })
   }
 
-  req.user = result.data
+  req.user = result.result
   next()
 }
 ```
@@ -282,16 +277,16 @@ export async function authMiddleware(req, res, next) {
 ```typescript
 const refreshResult = await jwtVerify(refreshToken, process.env.REFRESH_SECRET)
 
-if (refreshResult.success) {
+if (refreshResult.status === "success") {
   // Issue new access token
-  const newToken = jwtSign(
-    { userId: refreshResult.data.userId },
+  const newToken = await jwtSign(
+    { userId: refreshResult.result.userId },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   )
 
-  if (newToken.success) {
-    return res.json({ accessToken: newToken.data })
+  if (newToken.status === "success") {
+    return res.json({ accessToken: newToken.result })
   }
 }
 
@@ -339,19 +334,20 @@ try {
 
 ```typescript
 const result = await jwtVerify(token, secret)
-if (result.success) {
-  const payload = result.data
+if (result.status === "success") {
+  const payload = result.result
 }
 ```
 
 ## 📝 API Types
 
-### Result Type
+### JwtResult Type
 
 ```typescript
-type Result<T> =
-  | { success: true; data: T }
-  | { success: false; error: JwtError }
+import { StdResponse } from "@digicroz/js-kit/std-response"
+
+// Uses StandardResponse pattern
+type JwtResult<T> = StdResponse<T, JwtErrorType>
 ```
 
 ### JwtPayload Interface

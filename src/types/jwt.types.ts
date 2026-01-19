@@ -1,29 +1,6 @@
-/**
- * JWT Result Pattern - Represents success or failure without throwing
- */
 
 import type { VerifyOptions, SignOptions, DecodeOptions } from "jsonwebtoken"
-
-/**
- * Success result
- */
-export interface SuccessResult<T> {
-  readonly success: true
-  readonly data: T
-}
-
-/**
- * Error result
- */
-export interface ErrorResult {
-  readonly success: false
-  readonly error: JwtError
-}
-
-/**
- * Union type for Result - Either Success or Error
- */
-export type Result<T> = SuccessResult<T> | ErrorResult
+import type { StdResponse } from "@digicroz/js-kit/std-response"
 
 /**
  * JWT Error types - Production-level error categorization
@@ -39,6 +16,11 @@ export enum JwtErrorType {
   INVALID_SECRET = "INVALID_SECRET",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
+
+/**
+ * JWT Result Type - Uses StandardResponse
+ */
+export type JwtResult<T> = StdResponse<T, JwtErrorType>
 
 /**
  * JWT Error class - Production-grade error handling
@@ -115,8 +97,8 @@ export type JwtDecodeOptions = DecodeOptions
  * @param result
  * @returns true if result is successful
  */
-export function isSuccess<T>(result: Result<T>): result is SuccessResult<T> {
-  return result.success === true
+export function isSuccess<T>(result: JwtResult<T>): result is { status: "success"; result: T } {
+  return result.status === "success"
 }
 
 /**
@@ -124,14 +106,6 @@ export function isSuccess<T>(result: Result<T>): result is SuccessResult<T> {
  * @param result
  * @returns true if result is an error
  */
-export function isError<T>(result: Result<T>): result is ErrorResult {
-  return result.success === false
-}
-
-/**
- * Helper function to check negation
- * @deprecated Use isError instead
- */
-export function hasError<T>(result: Result<T>): result is ErrorResult {
-  return result.success === false
+export function isError<T>(result: JwtResult<T>): result is { status: "error"; error: { code: JwtErrorType; message?: string } } {
+  return result.status === "error"
 }

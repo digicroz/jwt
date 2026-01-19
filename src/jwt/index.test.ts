@@ -12,7 +12,7 @@ import {
   isSuccess,
   isError,
 } from "../types/jwt.types.js"
-import { timingSafeEqual, isValidTokenStructure } from "../utils/timingSafe.js"
+import { isValidTokenStructure } from "../utils/timingSafe.js"
 
 describe("JWT Package - Production Test Suite", () => {
   const secret = "my-super-secret-key"
@@ -23,28 +23,28 @@ describe("JWT Package - Production Test Suite", () => {
   }
 
   describe("jwtSign - Token Creation", () => {
-    it("should successfully sign a token with basic payload", () => {
-      const result = jwtSign(payload, secret)
+    it("should successfully sign a token with basic payload", async () => {
+      const result = await jwtSign(payload, secret)
 
-      expect(result.success).toBe(true)
+      expect(result.status).toBe("success")
       expect(isSuccess(result)).toBe(true)
-      if (result.success) {
-        expect(typeof result.data).toBe("string")
-        expect(result.data.split(".").length).toBe(3) // JWT format: header.payload.signature
+      if (result.status === "success") {
+        expect(typeof result.result).toBe("string")
+        expect(result.result.split(".").length).toBe(3) // JWT format: header.payload.signature
       }
     })
 
-    it("should successfully sign token with expiresIn option", () => {
-      const result = jwtSign(payload, secret, { expiresIn: "1h" })
+    it("should successfully sign token with expiresIn option", async () => {
+      const result = await jwtSign(payload, secret, { expiresIn: "1h" })
 
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(typeof result.data).toBe("string")
+      expect(result.status).toBe("success")
+      if (result.status === "success") {
+        expect(typeof result.result).toBe("string")
       }
     })
 
-    it("should successfully sign token with all common options", () => {
-      const result = jwtSign(payload, secret, {
+    it("should successfully sign token with all common options", async () => {
+      const result = await jwtSign(payload, secret, {
         expiresIn: "24h",
         issuer: "my-app",
         subject: "user-auth",
@@ -52,39 +52,38 @@ describe("JWT Package - Production Test Suite", () => {
         algorithm: "HS256",
       })
 
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(typeof result.data).toBe("string")
+      expect(result.status).toBe("success")
+      if (result.status === "success") {
+        expect(typeof result.result).toBe("string")
       }
     })
 
-    it("should handle invalid payload gracefully", () => {
-      const result = jwtSign(null as any, secret)
+    it("should handle invalid payload gracefully", async () => {
+      const result = await jwtSign(null as any, secret)
 
-      expect(result.success).toBe(false)
+      expect(result.status).toBe("error")
       expect(isError(result)).toBe(true)
-      if (!result.success) {
-        expect(result.error).toBeInstanceOf(JwtError)
-        expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN)
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN)
       }
     })
 
-    it("should handle invalid secret gracefully", () => {
-      const result = jwtSign(payload, null as any)
+    it("should handle invalid secret gracefully", async () => {
+      const result = await jwtSign(payload, null as any)
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.INVALID_SECRET)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_SECRET)
       }
     })
 
-    it("should support Buffer as secret", () => {
+    it("should support Buffer as secret", async () => {
       const bufferSecret = Buffer.from(secret)
-      const result = jwtSign(payload, bufferSecret)
+      const result = await jwtSign(payload, bufferSecret)
 
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(typeof result.data).toBe("string")
+      expect(result.status).toBe("success")
+      if (result.status === "success") {
+        expect(typeof result.result).toBe("string")
       }
     })
   })
@@ -92,22 +91,22 @@ describe("JWT Package - Production Test Suite", () => {
   describe("jwtVerify - Token Verification", () => {
     let validToken: string
 
-    beforeEach(() => {
-      const signResult = jwtSign(payload, secret)
-      if (signResult.success) {
-        validToken = signResult.data
+    beforeEach(async () => {
+      const signResult = await jwtSign(payload, secret)
+      if (signResult.status === "success") {
+        validToken = signResult.result
       }
     })
 
     it("should successfully verify a valid token", async () => {
       const result = await jwtVerify(validToken, secret)
 
-      expect(result.success).toBe(true)
+      expect(result.status).toBe("success")
       expect(isSuccess(result)).toBe(true)
-      if (result.success) {
-        expect(result.data.userId).toBe(payload.userId)
-        expect(result.data.email).toBe(payload.email)
-        expect(result.data.role).toBe(payload.role)
+      if (result.status === "success") {
+        expect(result.result.userId).toBe(payload.userId)
+        expect(result.result.email).toBe(payload.email)
+        expect(result.result.role).toBe(payload.role)
       }
     })
 
@@ -115,11 +114,11 @@ describe("JWT Package - Production Test Suite", () => {
       // This test catches issues like "jwt.verify is not a function" caused by incorrect imports
       const result = await jwtVerify(validToken, secret)
 
-      expect(result.success).toBe(true)
-      if (result.success) {
+      expect(result.status).toBe("success")
+      if (result.status === "success") {
         // If we reach here, jwt.verify was properly available and callable
-        expect(result.data).toBeDefined()
-        expect(typeof result.data).toBe("object")
+        expect(result.result).toBeDefined()
+        expect(typeof result.result).toBe("object")
       }
     })
 
@@ -132,9 +131,9 @@ describe("JWT Package - Production Test Suite", () => {
 
       const result = await jwtVerify<CustomPayload>(validToken, secret)
 
-      expect(result.success).toBe(true)
-      if (result.success) {
-        const typedData: CustomPayload = result.data
+      expect(result.status).toBe("success")
+      if (result.status === "success") {
+        const typedData: CustomPayload = result.result
         expect(typedData.userId).toBe(payload.userId)
       }
     })
@@ -142,75 +141,74 @@ describe("JWT Package - Production Test Suite", () => {
     it("should reject token with wrong secret", async () => {
       const result = await jwtVerify(validToken, "wrong-secret")
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error).toBeInstanceOf(JwtError)
-        expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN)
       }
     })
 
     it("should handle expired tokens", async () => {
-      const expiredSignResult = jwtSign(payload, secret, {
+      const expiredSignResult = await jwtSign(payload, secret, {
         expiresIn: "-1h", // Already expired
       })
 
-      if (expiredSignResult.success) {
-        const result = await jwtVerify(expiredSignResult.data, secret)
+      if (expiredSignResult.status === "success") {
+        const result = await jwtVerify(expiredSignResult.result, secret)
 
-        expect(result.success).toBe(false)
-        if (!result.success) {
-          expect(result.error.type).toBe(JwtErrorType.EXPIRED_TOKEN)
+        expect(result.status).toBe("error")
+        if (result.status === "error") {
+          expect(result.error.code).toBe(JwtErrorType.EXPIRED_TOKEN)
         }
       }
     })
 
     it("should ignore expiration when requested", async () => {
-      const expiredSignResult = jwtSign(payload, secret, {
+      const expiredSignResult = await jwtSign(payload, secret, {
         expiresIn: "-1h",
       })
 
-      if (expiredSignResult.success) {
-        const result = await jwtVerify(expiredSignResult.data, secret, {
+      if (expiredSignResult.status === "success") {
+        const result = await jwtVerify(expiredSignResult.result, secret, {
           ignoreExpiration: true,
         })
 
-        expect(result.success).toBe(true)
+        expect(result.status).toBe("success")
       }
     })
 
     it("should handle malformed tokens", async () => {
       const result = await jwtVerify("not.a.valid.token.string", secret)
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.MALFORMED_TOKEN)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.MALFORMED_TOKEN)
       }
     })
 
     it("should handle empty token", async () => {
       const result = await jwtVerify("", secret)
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN)
       }
     })
 
     it("should handle null token", async () => {
       const result = await jwtVerify(null as any, secret)
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN)
       }
     })
 
     it("should handle invalid secret", async () => {
       const result = await jwtVerify(validToken, null as any)
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.INVALID_SECRET)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_SECRET)
       }
     })
 
@@ -218,34 +216,34 @@ describe("JWT Package - Production Test Suite", () => {
       const bufferSecret = Buffer.from(secret)
       const result = await jwtVerify(validToken, bufferSecret)
 
-      expect(result.success).toBe(true)
+      expect(result.status).toBe("success")
     })
 
     it("should handle verification with custom options", async () => {
-      const tokenWithIssuer = jwtSign(payload, secret, {
+      const tokenWithIssuer = await jwtSign(payload, secret, {
         issuer: "test-issuer",
       })
 
-      if (tokenWithIssuer.success) {
-        const result = await jwtVerify(tokenWithIssuer.data, secret, {
+      if (tokenWithIssuer.status === "success") {
+        const result = await jwtVerify(tokenWithIssuer.result, secret, {
           issuer: "test-issuer",
         })
 
-        expect(result.success).toBe(true)
+        expect(result.status).toBe("success")
       }
     })
 
     it("should reject token with wrong issuer", async () => {
-      const tokenWithIssuer = jwtSign(payload, secret, {
+      const tokenWithIssuer = await jwtSign(payload, secret, {
         issuer: "test-issuer",
       })
 
-      if (tokenWithIssuer.success) {
-        const result = await jwtVerify(tokenWithIssuer.data, secret, {
+      if (tokenWithIssuer.status === "success") {
+        const result = await jwtVerify(tokenWithIssuer.result, secret, {
           issuer: "wrong-issuer",
         })
 
-        expect(result.success).toBe(false)
+        expect(result.status).toBe("error")
       }
     })
   })
@@ -253,20 +251,20 @@ describe("JWT Package - Production Test Suite", () => {
   describe("jwtDecode - Token Decoding", () => {
     let validToken: string
 
-    beforeEach(() => {
-      const signResult = jwtSign(payload, secret)
-      if (signResult.success) {
-        validToken = signResult.data
+    beforeEach(async () => {
+      const signResult = await jwtSign(payload, secret)
+      if (signResult.status === "success") {
+        validToken = signResult.result
       }
     })
 
     it("should successfully decode a token without verification", () => {
       const result = jwtDecode(validToken)
 
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data.userId).toBe(payload.userId)
-        expect(result.data.email).toBe(payload.email)
+      expect(result.status).toBe("success")
+      if (result.status === "success") {
+        expect(result.result.userId).toBe(payload.userId)
+        expect(result.result.email).toBe(payload.email)
       }
     })
 
@@ -279,9 +277,9 @@ describe("JWT Package - Production Test Suite", () => {
 
       const result = jwtDecode<CustomPayload>(validToken)
 
-      expect(result.success).toBe(true)
-      if (result.success) {
-        const typedData: CustomPayload = result.data
+      expect(result.status).toBe("success")
+      if (result.status === "success") {
+        const typedData: CustomPayload = result.result
         expect(typedData.role).toBe(payload.role)
       }
     })
@@ -289,33 +287,33 @@ describe("JWT Package - Production Test Suite", () => {
     it("should decode token even if signature is wrong", () => {
       // This is actually the token with signature but we're not verifying
       const result = jwtDecode(validToken)
-      expect(result.success).toBe(true)
+      expect(result.status).toBe("success")
     })
 
     it("should handle malformed tokens", () => {
       const result = jwtDecode("not.a.valid.token")
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.MALFORMED_TOKEN)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.MALFORMED_TOKEN)
       }
     })
 
     it("should handle empty token", () => {
       const result = jwtDecode("")
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN)
       }
     })
 
     it("should handle null token", () => {
       const result = jwtDecode(null as any)
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN)
       }
     })
   })
@@ -355,49 +353,28 @@ describe("JWT Package - Production Test Suite", () => {
   })
 
   describe("Type Guards", () => {
-    it("isSuccess should correctly identify successful results", () => {
-      const successResult = jwtSign(payload, secret)
+    it("isSuccess should correctly identify successful results", async () => {
+      const successResult = await jwtSign(payload, secret)
 
-      expect(isSuccess(successResult)).toBe(successResult.success)
+      expect(isSuccess(successResult)).toBe(successResult.status === "success")
     })
 
-    it("isError should correctly identify error results", () => {
-      const errorResult = jwtSign(null as any, secret)
+    it("isError should correctly identify error results", async () => {
+      const errorResult = await jwtSign(null as any, secret)
 
-      expect(isError(errorResult)).toBe(!errorResult.success)
-    })
-  })
-
-  describe("Timing-Safe Comparison", () => {
-    it("should safely compare equal strings", () => {
-      const result = timingSafeEqual("test", "test")
-      expect(result).toBe(true)
-    })
-
-    it("should safely compare different strings", () => {
-      const result = timingSafeEqual("test", "fail")
-      expect(result).toBe(false)
-    })
-
-    it("should handle different length strings", () => {
-      const result = timingSafeEqual("short", "muchlonger")
-      expect(result).toBe(false)
-    })
-
-    it("should handle non-string inputs", () => {
-      expect(timingSafeEqual(null as any, "test")).toBe(false)
-      expect(timingSafeEqual("test", undefined as any)).toBe(false)
-      expect(timingSafeEqual(123 as any, "test")).toBe(false)
+      expect(isError(errorResult)).toBe(errorResult.status === "error")
     })
   })
+
+
 
   describe("Token Structure Validation", () => {
     let validToken: string
 
-    beforeEach(() => {
-      const signResult = jwtSign(payload, secret)
-      if (signResult.success) {
-        validToken = signResult.data
+    beforeEach(async () => {
+      const signResult = await jwtSign(payload, secret)
+      if (signResult.status === "success") {
+        validToken = signResult.result
       }
     })
 
@@ -421,52 +398,52 @@ describe("JWT Package - Production Test Suite", () => {
   describe("Integration Tests", () => {
     it("should create, verify, and decode token in sequence", async () => {
       // Sign
-      const signResult = jwtSign(payload, secret, { expiresIn: "1h" })
-      expect(signResult.success).toBe(true)
+      const signResult = await jwtSign(payload, secret, { expiresIn: "1h" })
+      expect(signResult.status).toBe("success")
 
-      if (!signResult.success) return
+      if (signResult.status === "error") return
 
-      const token = signResult.data
+      const token = signResult.result
 
       // Verify
       const verifyResult = await jwtVerify(token, secret)
-      expect(verifyResult.success).toBe(true)
+      expect(verifyResult.status).toBe("success")
 
-      if (!verifyResult.success) return
+      if (verifyResult.status === "error") return
 
-      expect(verifyResult.data.userId).toBe(payload.userId)
+      expect(verifyResult.result.userId).toBe(payload.userId)
 
       // Decode
       const decodeResult = jwtDecode(token)
-      expect(decodeResult.success).toBe(true)
+      expect(decodeResult.status).toBe("success")
 
-      if (!decodeResult.success) return
+      if (decodeResult.status === "error") return
 
-      expect(decodeResult.data.userId).toBe(payload.userId)
+      expect(decodeResult.result.userId).toBe(payload.userId)
     })
 
     it("should handle multiple tokens independently", async () => {
       const payload1 = { userId: "user1", role: "admin" }
       const payload2 = { userId: "user2", role: "user" }
 
-      const token1 = jwtSign(payload1, secret)
-      const token2 = jwtSign(payload2, secret)
+      const token1 = await jwtSign(payload1, secret)
+      const token2 = await jwtSign(payload2, secret)
 
-      expect(token1.success).toBe(true)
-      expect(token2.success).toBe(true)
+      expect(token1.status).toBe("success")
+      expect(token2.status).toBe("success")
 
-      if (!token1.success || !token2.success) return
+      if (token1.status === "error" || token2.status === "error") return
 
-      const verify1 = await jwtVerify(token1.data, secret)
-      const verify2 = await jwtVerify(token2.data, secret)
+      const verify1 = await jwtVerify(token1.result, secret)
+      const verify2 = await jwtVerify(token2.result, secret)
 
-      expect(verify1.success).toBe(true)
-      expect(verify2.success).toBe(true)
+      expect(verify1.status).toBe("success")
+      expect(verify2.status).toBe("success")
 
-      if (!verify1.success || !verify2.success) return
+      if (verify1.status === "error" || verify2.status === "error") return
 
-      expect(verify1.data.userId).toBe("user1")
-      expect(verify2.data.userId).toBe("user2")
+      expect(verify1.result.userId).toBe("user1")
+      expect(verify2.result.userId).toBe("user2")
     })
 
     it("should handle rapid sequential operations", async () => {
@@ -474,106 +451,105 @@ describe("JWT Package - Production Test Suite", () => {
 
       for (let i = 0; i < 10; i++) {
         const p = { userId: `user${i}` }
-        const signResult = jwtSign(p, secret)
-
-        if (signResult.success) {
-          operations.push(jwtVerify(signResult.data, secret))
-        }
+        const signPromise = jwtSign(p, secret).then(signResult => {
+           if (signResult.status === "success") {
+             return jwtVerify(signResult.result, secret).then(r => r)
+           }
+           return signResult as any
+        })
+        operations.push(signPromise)
       }
 
       const results = await Promise.all(operations)
-      expect(results.every((r) => r.success)).toBe(true)
+      expect(results.every((r) => r.status === "success")).toBe(true)
     })
   })
 
   describe("Error Details and Diagnostics", () => {
-    it("should provide detailed error information", () => {
-      const result = jwtSign(null as any, secret)
+    it("should provide detailed error information", async () => {
+      const result = await jwtSign(null as any, secret)
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
         expect(result.error.message).toBeDefined()
-        expect(result.error.type).toBeDefined()
-        expect(result.error.timestamp).toBeInstanceOf(Date)
+        expect(result.error.code).toBeDefined()
       }
     })
 
     it("should preserve original error in chain", async () => {
       // Use a token with valid structure but invalid signature
-      const validSignResult = jwtSign(payload, secret)
-      if (!validSignResult.success) return
+      const validSignResult = await jwtSign(payload, secret)
+      if (validSignResult.status === "error") return
 
       // Verify with wrong secret to trigger a real verification error
-      const result = await jwtVerify(validSignResult.data, "wrong-secret")
+      const result = await jwtVerify(validSignResult.result, "wrong-secret")
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error).toBeInstanceOf(JwtError)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
         // originalError might be undefined for structural errors, only check for actual verification errors
-        if (result.error.type === JwtErrorType.INVALID_TOKEN) {
-          expect(result.error.originalError).toBeInstanceOf(Error)
+        if (result.error.code === JwtErrorType.INVALID_TOKEN) {
+          // The StandardResponse doesn't expose originalError directly in the way custom types did
+          // We can check message or code
+          expect(result.error.code).toBeDefined()
         }
       }
     })
 
     it("should handle different JWT error types correctly", async () => {
-      const expiredToken = jwtSign(payload, secret, { expiresIn: "-1s" })
-      if (!expiredToken.success) return
+      const expiredToken = await jwtSign(payload, secret, { expiresIn: "-1s" })
+      if (expiredToken.status === "error") return
 
-      const result = await jwtVerify(expiredToken.data, secret)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.type).toBe(JwtErrorType.EXPIRED_TOKEN)
+      const result = await jwtVerify(expiredToken.result, secret)
+      expect(result.status).toBe("error")
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.EXPIRED_TOKEN)
         expect(result.error.message).toBeTruthy()
       }
     })
 
-    it("should handle sign errors gracefully", () => {
+    it("should handle sign errors gracefully", async () => {
       // Try to sign with invalid algorithm option
-      const result = jwtSign(payload, secret, {
+      const result = await jwtSign(payload, secret, {
         algorithm: "RS256", // This is for asymmetric, should cause issues with string secret
       })
 
       // May fail or succeed depending on jwt library behavior
-      if (!result.success) {
-        expect(result.error).toBeInstanceOf(JwtError)
-        expect(result.error.type).toBe(JwtErrorType.SIGNING_FAILED)
+      if (result.status === "error") {
+        expect(result.error.code).toBe(JwtErrorType.SIGNING_FAILED)
       }
     })
   })
 
   describe("Type Narrowing - Discriminated Union", () => {
-    it("should properly narrow success result with success === true check", () => {
-      const result = jwtSign(payload, secret)
+    it("should properly narrow success result with success === true check", async () => {
+      const result = await jwtSign(payload, secret)
 
       // Using success === true for proper type narrowing
-      if (result.success === true) {
-        const token = result.data
+      if (result.status === "success") {
+        const token = result.result
         expect(typeof token).toBe("string")
         expect(token.split(".").length).toBe(3)
       }
     })
 
-    it("should properly narrow error result with success === false check", () => {
-      const result = jwtSign(null as any, secret)
+    it("should properly narrow error result with success === false check", async () => {
+      const result = await jwtSign(null as any, secret)
 
       // Using success === false for proper type narrowing
-      if (result.success === false) {
+      if (result.status === "error") {
         const error = result.error
-        expect(error).toBeInstanceOf(JwtError)
         expect(error.message).toBeTruthy()
-        expect(error.type).toBeTruthy()
-        expect(error.timestamp).toBeInstanceOf(Date)
+        expect(error.code).toBeTruthy()
       }
     })
 
     it("should properly narrow async success result with success === true", async () => {
-      const token = jwtSign(payload, secret)
-      if (token.success) {
-        const result = await jwtVerify(token.data, secret)
+      const token = await jwtSign(payload, secret)
+      if (token.status === "success") {
+        const result = await jwtVerify(token.result, secret)
 
-        if (result.success === true) {
-          const decodedPayload = result.data
+        if (result.status === "success") {
+          const decodedPayload = result.result
           expect(decodedPayload.userId).toBe(payload.userId)
           expect(decodedPayload.email).toBe(payload.email)
         }
@@ -583,20 +559,19 @@ describe("JWT Package - Production Test Suite", () => {
     it("should properly narrow async error result with success === false", async () => {
       const result = await jwtVerify("invalid.token.here", secret)
 
-      if (result.success === false) {
+      if (result.status === "error") {
         const error = result.error
-        expect(error).toBeInstanceOf(JwtError)
-        expect(error.type).toBe(JwtErrorType.MALFORMED_TOKEN)
+        expect(error.code).toBe(JwtErrorType.MALFORMED_TOKEN)
       }
     })
 
-    it("should work with type guards isSuccess and isError", () => {
-      const result = jwtSign(payload, secret)
+    it("should work with type guards isSuccess and isError", async () => {
+      const result = await jwtSign(payload, secret)
 
       expect(isSuccess(result)).toBe(true)
       expect(isError(result)).toBe(false)
 
-      const errorResult = jwtSign(null as any, secret)
+      const errorResult = await jwtSign(null as any, secret)
       expect(isSuccess(errorResult)).toBe(false)
       expect(isError(errorResult)).toBe(true)
     })

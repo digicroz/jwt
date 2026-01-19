@@ -16,9 +16,9 @@ describe('JWT Edge Cases', () => {
 
     // We expect this to fail because we want to enforce object payloads
     // consistent with jwtSign
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN);
+    expect(result.status).toBe("error");
+    if (result.status === "error") {
+      expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN);
       expect(result.error.message).toContain('Payload must be an object');
     }
   });
@@ -29,9 +29,9 @@ describe('JWT Edge Cases', () => {
 
     const result = await jwtVerify(token, secret);
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.type).toBe(JwtErrorType.INVALID_TOKEN);
+    expect(result.status).toBe("error");
+    if (result.status === "error") {
+      expect(result.error.code).toBe(JwtErrorType.INVALID_TOKEN);
       expect(result.error.message).toContain('Payload must be an object');
     }
   });
