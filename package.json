@@ -35,9 +35,6 @@
     "*": {
       "types": [
         "./dist/types/index.d.ts"
-      ],
-      "utils": [
-        "./dist/utils/index.d.ts"
       ]
     }
   },
@@ -54,12 +51,6 @@
       "require": "./dist/types/index.cjs",
       "import": "./dist/types/index.js",
       "default": "./dist/types/index.js"
-    },
-    "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "require": "./dist/utils/index.cjs",
-      "import": "./dist/utils/index.js",
-      "default": "./dist/utils/index.js"
     }
   },
   "files": [
