@@ -101,7 +101,7 @@
     "unlink": "npm unlink -g @digicroz/js-kit"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.8",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.0",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
@@ -110,7 +110,7 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
-    "@digicroz/js-kit": "^1.0.11",
-    "jsonwebtoken": "^9.0.2"
+    "@digicroz/js-kit": "^1.0.13",
+    "jsonwebtoken": "^9.0.3"
   }
 }
