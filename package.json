@@ -91,6 +91,10 @@
     "link": "npm run build && npm link",
     "unlink": "npm unlink -g @digicroz/js-kit"
   },
+  "dependencies": {
+    "@digicroz/js-kit": "^1.0.14",
+    "jsonwebtoken": "^9.0.3"
+  },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.0",
@@ -99,9 +103,5 @@
     "tsup": "^8.5.1",
     "typescript": "^5.4.0",
     "vitest": "^4.0.16"
-  },
-  "dependencies": {
-    "@digicroz/js-kit": "^1.0.13",
-    "jsonwebtoken": "^9.0.3"
   }
 }
