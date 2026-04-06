@@ -1,5 +1,5 @@
-import type { VerifyOptions, SignOptions, DecodeOptions } from "jsonwebtoken";
-import type { StdResponse } from "@digicroz/js-kit/std-response";
+import type { VerifyOptions, SignOptions, DecodeOptions } from "jsonwebtoken"
+import type { StdResponse } from "@digicroz/js-kit/std-response"
 
 export enum JwtErrorType {
   INVALID_TOKEN = "invalid_token",
@@ -10,23 +10,23 @@ export enum JwtErrorType {
   INVALID_SECRET = "invalid_secret",
 }
 
-export type JwtResult<T> = StdResponse<T, JwtErrorType>;
+export type JwtResult<T> = StdResponse<T, JwtErrorType>
 
 export interface JwtPayload {
-  [key: string]: unknown;
-  iat?: number;
-  exp?: number;
-  nbf?: number;
-  iss?: string;
-  sub?: string;
-  aud?: string | string[];
-  jti?: string;
+  [key: string]: unknown
+  iat?: number
+  exp?: number
+  nbf?: number
+  iss?: string
+  sub?: string
+  aud?: string | string[]
+  jti?: string
 }
 
 export interface JwtVerifyOptions extends VerifyOptions {
-  debug?: boolean;
+  debug?: boolean
 }
 
-export type JwtSignOptions = SignOptions;
+export type JwtSignOptions = SignOptions
 
-export type JwtDecodeOptions = DecodeOptions;
+export type JwtDecodeOptions = DecodeOptions
